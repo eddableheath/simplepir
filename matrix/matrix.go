@@ -12,11 +12,11 @@ import (
 	"math/big"
 	mrand "math/rand"
 
- 	"github.com/henrycg/simplepir/lwe"
+	"github.com/henrycg/simplepir/lwe"
 )
 
-type Elem32 = C.Elem32
-type Elem64 = C.Elem64
+type Elem32 uint32
+type Elem64 uint64
 
 type Elem interface {
 	Elem32 | Elem64

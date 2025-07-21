@@ -5,8 +5,8 @@ package matrix
 import "C"
 
 import (
-	"io"
 	"fmt"
+	"io"
 	"unsafe"
 )
 
