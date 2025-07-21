@@ -92,14 +92,22 @@ func Mul[T Elem](a *Matrix[T], b *Matrix[T]) *Matrix[T] {
 	bcols := C.size_t(b.cols)
 
 	outPtr := unsafe.Pointer(&out.data[0])
+	cOutPtr32 := (*C.uint32_t)(outPtr)
+	cOutPtr64 := (*C.uint64_t)(outPtr)
+
 	aPtr := unsafe.Pointer(&a.data[0])
+	cAptr32 := (*C.uint32_t)(aPtr)
+	cAptr64 := (*C.uint64_t)(aPtr)
+
 	bPtr := unsafe.Pointer(&b.data[0])
+	cBptr32 := (*C.uint32_t)(bPtr)
+	cBptr64 := (*C.uint64_t)(bPtr)
 
 	switch T(0).Bitlen() {
 		case 32:
-			C.matMul32((*Elem32)(outPtr), (*Elem32)(aPtr), (*Elem32)(bPtr), arows, acols, bcols)
+			C.matMul32((*C.uint32_t)(cOutPtr32), (*C.uint32_t)(cAptr32), (*C.uint32_t)(cBptr32), arows, acols, bcols)
 		case 64:
-			C.matMul64((*Elem64)(outPtr), (*Elem64)(aPtr), (*Elem64)(bPtr), arows, acols, bcols)
+			C.matMul64((*C.uint64_t)(cOutPtr64), (*C.uint64_t)(cAptr64), (*C.uint64_t)(cBptr64), arows, acols, bcols)
 		default:
 			panic("Shouldn't get here")
 	}
@@ -127,13 +135,18 @@ func MulSeededLeft[T Elem](a *MatrixSeeded[T], b *Matrix[T]) *Matrix[T] {
 	elemSz := T(0).Bitlen() / 8
 	curRows := uint64(0)
 	bPtr := unsafe.Pointer(&b.data[0])
+	cBptr32 := (*C.uint32_t)(bPtr)
+	cBptr64 := (*C.uint64_t)(bPtr)
 
 	ch := make(chan bool)
 	for i, _ := range a.rows {
 		go func(it int, curRowsIn uint64) {
 			buf := make([]byte, elemSz * a.cols * a.rows[it])
 			bufPtr := unsafe.Pointer(&buf[0])
+
 			outPtr := unsafe.Pointer(&out.data[curRowsIn * b.cols])
+			cOutPtr32 := (*C.uint32_t)(outPtr)
+			cOutPtr64 := (*C.uint64_t)(outPtr)
 
 			_, err := io.ReadFull(a.src[it], buf)
 			if err != nil {
@@ -142,9 +155,9 @@ func MulSeededLeft[T Elem](a *MatrixSeeded[T], b *Matrix[T]) *Matrix[T] {
 
 			switch T(0).Bitlen(){
 				case 32:
-					C.randMatMul32((*Elem32)(outPtr), (*C.uint8_t)(bufPtr), (*Elem32)(bPtr), C.size_t(a.rows[it]), C.size_t(a.cols), C.size_t(b.cols))
+					C.randMatMul32((*C.uint32_t)(cOutPtr32), (*C.uint8_t)(bufPtr), (*C.uint32_t)(cBptr32), C.size_t(a.rows[it]), C.size_t(a.cols), C.size_t(b.cols))
 				case 64:
-					C.randMatMul64((*Elem64)(outPtr), (*C.uint8_t)(bufPtr), (*Elem64)(bPtr), C.size_t(a.rows[it]), C.size_t(a.cols), C.size_t(b.cols))
+					C.randMatMul64((*C.uint64_t)(cOutPtr64), (*C.uint8_t)(bufPtr), (*C.uint64_t)(cBptr64), C.size_t(a.rows[it]), C.size_t(a.cols), C.size_t(b.cols))
 				default:
 					panic("Shouldn't get here")
 			}
@@ -177,15 +190,27 @@ func MulVec[T Elem](a *Matrix[T], b *Matrix[T]) *Matrix[T] {
 	arows := C.size_t(a.rows)
 	acols := C.size_t(a.cols)
 
+	// outPtr := unsafe.Pointer(&out.data[0])
+	// aPtr := unsafe.Pointer(&a.data[0])
+	// bPtr := unsafe.Pointer(&b.data[0])
+
 	outPtr := unsafe.Pointer(&out.data[0])
+	cOutPtr32 := (*C.uint32_t)(outPtr)
+	cOutPtr64 := (*C.uint64_t)(outPtr)
+
 	aPtr := unsafe.Pointer(&a.data[0])
+	cAptr32 := (*C.uint32_t)(aPtr)
+	cAptr64 := (*C.uint64_t)(aPtr)
+
 	bPtr := unsafe.Pointer(&b.data[0])
+	cBptr32 := (*C.uint32_t)(bPtr)
+	cBptr64 := (*C.uint64_t)(bPtr)
 
 	switch T(0).Bitlen() {
 		case 32:
-			C.matMulVec32((*Elem32)(outPtr), (*Elem32)(aPtr), (*Elem32)(bPtr), arows, acols)
+			C.matMulVec32((*C.uint32_t)(cOutPtr32), (*C.uint32_t)(cAptr32), (*C.uint32_t)(cBptr32), arows, acols)
 		case 64:
-			C.matMulVec64((*Elem64)(outPtr), (*Elem64)(aPtr), (*Elem64)(bPtr), arows, acols)
+			C.matMulVec64((*C.uint64_t)(cOutPtr64), (*C.uint64_t)(cAptr64), (*C.uint64_t)(cBptr64), arows, acols)
 		default:
 			panic("Shouldn't get here")
 	}
@@ -207,15 +232,27 @@ func MulVecPacked[T Elem](a *Matrix[T], b *Matrix[T]) *Matrix[T] {
 	arows := C.size_t(a.rows)
 	acols := C.size_t(a.cols)
 
+	// outPtr := unsafe.Pointer(&out.data[0])
+	// aPtr := unsafe.Pointer(&a.data[0])
+	// bPtr := unsafe.Pointer(&b.data[0])
+
 	outPtr := unsafe.Pointer(&out.data[0])
+	cOutPtr32 := (*C.uint32_t)(outPtr)
+	cOutPtr64 := (*C.uint64_t)(outPtr)
+
 	aPtr := unsafe.Pointer(&a.data[0])
+	cAptr32 := (*C.uint32_t)(aPtr)
+	cAptr64 := (*C.uint64_t)(aPtr)
+
 	bPtr := unsafe.Pointer(&b.data[0])
+	cBptr32 := (*C.uint32_t)(bPtr)
+	cBptr64 := (*C.uint64_t)(bPtr)
 
 	switch T(0).Bitlen() {
 		case 32:
-			C.matMulVecPacked32((*Elem32)(outPtr), (*Elem32)(aPtr), (*Elem32)(bPtr), arows, acols)
+			C.matMulVecPacked32((*C.uint32_t)(cOutPtr32), (*C.uint32_t)(cAptr32), (*C.uint32_t)(cBptr32), arows, acols)
 		case 64:
-			C.matMulVecPacked64((*Elem64)(outPtr), (*Elem64)(aPtr), (*Elem64)(bPtr), arows, acols)
+			C.matMulVecPacked64((*C.uint64_t)(cOutPtr64), (*C.uint64_t)(cAptr64), (*C.uint64_t)(cBptr64), arows, acols)
 		default:
 			panic("Shouldn't get here")
 	}
